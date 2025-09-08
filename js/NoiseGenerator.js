@@ -14,14 +14,20 @@ class NoiseGenerator {
         this.audioContext = null;
         this.noiseBuffer = null;
         this.sourceNode = null;
+        this.scriptNode = null;
         this.filterChain = [];
         this.gainNode = null;
         this.isPlaying = false;
         this.currentNoiseType = 'pink';
         
-        // Buffer size for high-quality noise generation
-        this.bufferSize = 4096 * 4; // 16384 samples for smooth playback
+        // Buffer size for real-time generation
+        this.bufferSize = 4096; // Process in 4K chunks
         this.sampleRate = 44100;
+        
+        // State variables for continuous generation
+        this.brownNoiseState = 0;
+        this.pinkNoiseState = new Array(7).fill(0).map(() => Math.random() * 2 - 1);
+        this.pinkNoiseCounters = new Array(7).fill(0);
         
         // Initialize audio context on first user interaction
         this.initPromise = null;
@@ -119,15 +125,21 @@ class NoiseGenerator {
     generateBrownNoise(length) {
         const buffer = new Float32Array(length);
         let lastValue = 0;
-        const scaling = 0.02; // Scaling factor to prevent clipping
+        const scaling = 0.018; // Slightly higher scaling for fuller sound
+        const leakage = 0.9995; // Gentle DC blocking to prevent drift
         
         for (let i = 0; i < length; i++) {
             // Random walk algorithm - each sample is previous + random step
             const randomStep = (Math.random() * 2 - 1) * scaling;
-            lastValue += randomStep;
+            lastValue = lastValue * leakage + randomStep;
             
-            // Apply soft limiting to prevent excessive drift
-            lastValue = Math.max(-1, Math.min(1, lastValue * 0.998));
+            // Very gentle limiting using smooth curve instead of hard clipping
+            if (Math.abs(lastValue) > 0.95) {
+                const sign = Math.sign(lastValue);
+                const excess = Math.abs(lastValue) - 0.95;
+                lastValue = sign * (0.95 + excess * 0.1); // Compress excess by 90%
+            }
+            
             buffer[i] = lastValue;
         }
         
@@ -242,6 +254,120 @@ class NoiseGenerator {
     }
 
     /**
+     * Generate noise continuously using ScriptProcessorNode
+     */
+    generateContinuousNoise(event) {
+        const outputL = event.outputBuffer.getChannelData(0);
+        const outputR = event.outputBuffer.getChannelData(1);
+        const bufferLength = event.outputBuffer.length;
+        
+        for (let i = 0; i < bufferLength; i++) {
+            let sample = 0;
+            
+            switch (this.currentNoiseType) {
+                case 'white':
+                    sample = (Math.random() * 2 - 1);
+                    break;
+                    
+                case 'pink':
+                    sample = this.generatePinkNoiseSample();
+                    break;
+                    
+                case 'brown':
+                    sample = this.generateBrownNoiseSample();
+                    break;
+                    
+                case 'green':
+                    sample = this.generateGreenNoiseSample();
+                    break;
+                    
+                case 'blue':
+                    sample = this.generateBlueNoiseSample();
+                    break;
+                    
+                default:
+                    sample = this.generatePinkNoiseSample();
+            }
+            
+            // Apply to both channels with slight stereo variation
+            outputL[i] = sample;
+            outputR[i] = sample * 0.95 + (Math.random() * 0.1 - 0.05);
+        }
+    }
+
+    /**
+     * Generate single pink noise sample (continuous)
+     */
+    generatePinkNoiseSample() {
+        const updateRates = [1, 2, 4, 8, 16, 32, 64];
+        let sum = 0;
+        
+        // Update generators based on counters
+        updateRates.forEach((rate, index) => {
+            if (this.pinkNoiseCounters[index] % rate === 0) {
+                this.pinkNoiseState[index] = Math.random() * 2 - 1;
+            }
+            sum += this.pinkNoiseState[index];
+            this.pinkNoiseCounters[index]++;
+        });
+        
+        return sum * 0.15;
+    }
+
+    /**
+     * Generate single brown noise sample (continuous)
+     */
+    generateBrownNoiseSample() {
+        const scaling = 0.018;
+        const leakage = 0.9995;
+        
+        const randomStep = (Math.random() * 2 - 1) * scaling;
+        this.brownNoiseState = this.brownNoiseState * leakage + randomStep;
+        
+        // Gentle limiting
+        if (Math.abs(this.brownNoiseState) > 0.95) {
+            const sign = Math.sign(this.brownNoiseState);
+            const excess = Math.abs(this.brownNoiseState) - 0.95;
+            this.brownNoiseState = sign * (0.95 + excess * 0.1);
+        }
+        
+        return this.brownNoiseState;
+    }
+
+    /**
+     * Generate single green noise sample (continuous)
+     */
+    generateGreenNoiseSample() {
+        // Simple mid-frequency emphasis using running average
+        const whiteNoise = (Math.random() * 2 - 1);
+        
+        // Store previous samples for filtering (simplified)
+        if (!this.greenNoiseBuffer) this.greenNoiseBuffer = [0, 0];
+        
+        const filtered = 0.8 * whiteNoise + 0.3 * this.greenNoiseBuffer[0] - 0.1 * this.greenNoiseBuffer[1];
+        this.greenNoiseBuffer[1] = this.greenNoiseBuffer[0];
+        this.greenNoiseBuffer[0] = filtered;
+        
+        return filtered * 0.7;
+    }
+
+    /**
+     * Generate single blue noise sample (continuous)
+     */
+    generateBlueNoiseSample() {
+        const whiteNoise = (Math.random() * 2 - 1);
+        
+        // High-pass filter simulation
+        if (!this.blueNoisePrev) this.blueNoisePrev = 0;
+        
+        const alpha = 0.85;
+        const highpass = alpha * (this.blueNoisePrev + whiteNoise - (this.blueNoisePrev || 0));
+        this.blueNoisePrev = whiteNoise;
+        
+        return highpass * 0.8;
+    }
+
+    /**
      * Start playing noise of specified type
      */
     async start(noiseType = 'pink') {
@@ -254,32 +380,40 @@ class NoiseGenerator {
 
         this.currentNoiseType = noiseType;
         
-        // Create new buffer for the noise type
-        this.noiseBuffer = this.createNoiseBuffer(noiseType);
+        // Reset state variables for continuous generation
+        this.brownNoiseState = 0;
+        this.pinkNoiseState = new Array(7).fill(0).map(() => Math.random() * 2 - 1);
+        this.pinkNoiseCounters = new Array(7).fill(0);
         
-        // Create and configure source node
-        this.sourceNode = this.audioContext.createBufferSource();
-        this.sourceNode.buffer = this.noiseBuffer;
-        this.sourceNode.loop = true; // Loop seamlessly
+        // Create ScriptProcessorNode for continuous generation
+        this.scriptNode = this.audioContext.createScriptProcessor(this.bufferSize, 0, 2);
+        this.scriptNode.onaudioprocess = (event) => this.generateContinuousNoise(event);
         
         // Connect to audio graph
-        this.sourceNode.connect(this.gainNode);
+        this.scriptNode.connect(this.gainNode);
         
-        // Start playback
-        this.sourceNode.start(0);
         this.isPlaying = true;
         
-        console.log(`Started ${noiseType} noise generation`);
+        console.log(`Started continuous ${noiseType} noise generation`);
     }
 
     /**
      * Stop noise playback
      */
     stop() {
-        if (this.sourceNode && this.isPlaying) {
-            this.sourceNode.stop();
-            this.sourceNode.disconnect();
-            this.sourceNode = null;
+        if (this.isPlaying) {
+            if (this.sourceNode) {
+                this.sourceNode.stop();
+                this.sourceNode.disconnect();
+                this.sourceNode = null;
+            }
+            
+            if (this.scriptNode) {
+                this.scriptNode.disconnect();
+                this.scriptNode.onaudioprocess = null;
+                this.scriptNode = null;
+            }
+            
             this.isPlaying = false;
             console.log('Stopped noise generation');
         }
