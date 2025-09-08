@@ -1,0 +1,46 @@
+{
+  "name": "colornoise",
+  "version": "1.0.0",
+  "description": "Modern, scientifically-accurate colored noise generator with ocean-like ambiance effects",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "http-server -p 8000 -c-1 -o",
+    "build": "echo 'Static site - no build required'",
+    "deploy": "echo 'Deploy to Cloudflare Pages via Git integration'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jacksoneyton/ColorNoise.git"
+  },
+  "keywords": [
+    "noise-generator",
+    "ambient-sound",
+    "web-audio-api",
+    "pink-noise",
+    "brown-noise",
+    "white-noise",
+    "relaxation",
+    "focus",
+    "sleep",
+    "meditation"
+  ],
+  "author": "Jackson Eyton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jacksoneyton/ColorNoise/issues"
+  },
+  "homepage": "https://github.com/jacksoneyton/ColorNoise#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ]
+}
