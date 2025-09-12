@@ -10,6 +10,7 @@ class SoundDesignerEngine {
         this.audioContext = null;
         this.isPlaying = false;
         this.currentNoiseType = 'white';
+        this.iOSUnlocked = false;
         
         // Audio nodes
         this.scriptNode = null;
@@ -66,7 +67,36 @@ class SoundDesignerEngine {
         // Initialize spectrum display
         this.initSpectrumDisplay();
         
+        // Show mobile notice if on iOS
+        this.showMobileNoticeIfNeeded();
+        
         console.log('Sound Designer Engine initialized');
+    }
+    
+    isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
+    isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent);
+    }
+    
+    showMobileNoticeIfNeeded() {
+        if (this.isIOS()) {
+            const notice = document.getElementById('mobileNotice');
+            if (notice) {
+                notice.style.display = 'block';
+                console.log('Mobile notice shown for iOS device');
+            }
+        }
+    }
+    
+    hideMobileNotice() {
+        const notice = document.getElementById('mobileNotice');
+        if (notice) {
+            notice.style.display = 'none';
+            console.log('Mobile notice hidden');
+        }
     }
 
     setupUIEventListeners() {
@@ -142,22 +172,61 @@ class SoundDesignerEngine {
         if (this.audioContext) return;
         
         try {
+            // iOS-compatible AudioContext initialization
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
                 sampleRate: 44100,
                 latencyHint: 'playback'
             });
 
+            console.log('Initial AudioContext state:', this.audioContext.state);
+            
+            // iOS requires explicit user interaction to unlock audio
             if (this.audioContext.state === 'suspended') {
+                console.log('AudioContext suspended, attempting to resume...');
                 await this.audioContext.resume();
+                console.log('AudioContext resumed, new state:', this.audioContext.state);
             }
+            
+            // Additional iOS audio unlock - play a silent buffer
+            await this.unlockIOSAudio();
 
             // Create audio graph
             await this.createAudioGraph();
             
-            console.log('Audio context initialized');
+            console.log('Audio context fully initialized');
         } catch (error) {
             console.error('Failed to initialize audio context:', error);
             throw error;
+        }
+    }
+    
+    async unlockIOSAudio() {
+        // Create and play a silent buffer to unlock iOS audio
+        if (!this.isIOS() || this.iOSUnlocked) {
+            return;
+        }
+        
+        try {
+            console.log('Attempting iOS audio unlock...');
+            const buffer = this.audioContext.createBuffer(1, 1, 22050);
+            const source = this.audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(this.audioContext.destination);
+            source.start(0);
+            
+            // Wait for the buffer to play
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Verify audio context is running
+            if (this.audioContext.state === 'running') {
+                this.iOSUnlocked = true;
+                this.hideMobileNotice(); // Hide notice once audio is working
+                console.log('iOS audio successfully unlocked');
+            } else {
+                console.log('iOS audio unlock incomplete, state:', this.audioContext.state);
+            }
+        } catch (error) {
+            console.log('iOS audio unlock failed:', error);
         }
     }
 
@@ -178,9 +247,13 @@ class SoundDesignerEngine {
         // Create effects
         await this.createEffects();
         
-        // Script processor for noise generation
-        this.scriptNode = this.audioContext.createScriptProcessor(4096, 0, 2);
+        // Script processor for noise generation - iOS-compatible setup
+        const bufferSize = this.isMobile() ? 8192 : 4096; // Larger buffer for mobile stability
+        this.scriptNode = this.audioContext.createScriptProcessor(bufferSize, 0, 2);
         this.scriptNode.onaudioprocess = (event) => this.generateAudio(event);
+        
+        // Ensure ScriptProcessorNode doesn't get garbage collected on iOS
+        window._scriptNodeRef = this.scriptNode;
         
         // Connect complete audio graph including script processor
         this.connectAudioGraph();
@@ -567,9 +640,22 @@ class SoundDesignerEngine {
 
     async play() {
         if (!this.isPlaying) {
-            // Ensure audio context is running
+            // Ensure audio context is running - critical for iOS
             if (this.audioContext.state === 'suspended') {
+                console.log('Resuming suspended AudioContext...');
                 await this.audioContext.resume();
+                console.log('AudioContext resumed, state:', this.audioContext.state);
+            }
+            
+            // iOS-specific unlock if needed
+            if (this.isIOS() && !this.iOSUnlocked) {
+                await this.unlockIOSAudio();
+            }
+            
+            // Final state check
+            if (this.audioContext.state !== 'running') {
+                console.error('AudioContext not running after unlock attempts, state:', this.audioContext.state);
+                throw new Error(`AudioContext failed to start (state: ${this.audioContext.state})`);
             }
             
             this.isPlaying = true;

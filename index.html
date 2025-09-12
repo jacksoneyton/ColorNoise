@@ -359,6 +359,36 @@
             display: none;
         }
 
+        /* Mobile Notice */
+        .mobile-notice {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 15px 25px;
+            color: #ffd700;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+            z-index: 1001;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
         /* Volume and Master Controls */
         .master-controls {
             position: fixed;
@@ -577,6 +607,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Audio Notice -->
+        <div id="mobileNotice" class="mobile-notice" style="display: none;">
+            <p>📱 On iOS devices, tap the play button to enable audio playback</p>
         </div>
 
         <!-- Spectrum Display -->
