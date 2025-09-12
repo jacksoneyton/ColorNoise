@@ -50,7 +50,7 @@ A professional-grade procedural sound design tool featuring scientifically-accur
    python -m http.server 8000  # Or use any static server
    ```
 
-2. **Open**: Navigate to `http://localhost:8000/sound_designer.html`
+2. **Open**: Navigate to `http://localhost:8000` (loads index.html automatically)
 
 3. **Use**: Click the center play button, select noise types around the wheel, adjust EQ and effects
 
@@ -115,4 +115,4 @@ MIT License - See [LICENSE](LICENSE) file for details.
 ---
 
 **Repository**: [GitHub - ColorNoise](https://github.com/jacksoneyton/ColorNoise)  
-**Main Tool**: Open `sound_designer.html` for the full professional interface
+**Live Tool**: Opens directly at index.html with full professional interface
