@@ -287,16 +287,13 @@ class SoundDesignerEngine {
         const reverbBuffer = this.createReverbImpulse(3.0, 0.7);
         this.reverbNode.buffer = reverbBuffer;
         
-        // Spatial panner - iOS-compatible setup
-        if (this.audioContext.createStereoPanner && !this.isIOS()) {
+        // Spatial panner
+        if (this.audioContext.createStereoPanner) {
             this.spatialPanner = this.audioContext.createStereoPanner();
             this.spatialPanner.pan.value = 0;
-            console.log('Using StereoPanner for spatial effects');
         } else {
-            // iOS fallback: use simple gain node to avoid routing issues
-            this.spatialPanner = this.audioContext.createGain();
-            this.spatialPanner.gain.value = 1.0;
-            console.log('Using Gain node for iOS spatial fallback');
+            this.spatialPanner = this.audioContext.createPanner();
+            this.spatialPanner.panningModel = 'equalpower';
         }
         
         // Warmth filter
@@ -332,28 +329,7 @@ class SoundDesignerEngine {
     }
 
     connectAudioGraph() {
-        if (this.isIOS()) {
-            // Simplified iOS audio path - direct routing only
-            console.log('Using simplified iOS audio path');
-            
-            this.iosSimpleGain = this.audioContext.createGain();
-            this.iosSimpleGain.gain.value = 0.8;
-            
-            // Direct connection: ScriptProcessor → Gain → Destination
-            this.scriptNode.connect(this.iosSimpleGain);
-            this.iosSimpleGain.connect(this.audioContext.destination);
-            
-            // Still connect to analyzer for spectrum display
-            this.iosAnalyzerGain = this.audioContext.createGain();
-            this.iosAnalyzerGain.gain.value = 1.0;
-            this.iosSimpleGain.connect(this.iosAnalyzerGain);
-            this.iosAnalyzerGain.connect(this.analyser);
-            
-            console.log('iOS simplified audio graph connected');
-            return;
-        }
-        
-        // Full complex audio path for non-iOS devices
+        // Full audio processing path for all devices
         console.log('Using full audio processing path');
         
         // Connect script processor to EQ chain (always connected, but will generate silence when stopped)
@@ -392,7 +368,10 @@ class SoundDesignerEngine {
         this.dryGain.gain.value = 0.8;
         this.reverbGain.gain.value = 0.2;
         
-        console.log('Full audio graph connected with script processor');
+        // Verify audio routing
+        this.verifyAudioRouting();
+        
+        console.log('Audio graph connected with script processor');
     }
     
     verifyAudioRouting() {
@@ -403,63 +382,10 @@ class SoundDesignerEngine {
         console.log('Master gain value:', this.masterGain?.gain?.value);
         console.log('Script node connected:', !!this.scriptNode);
         console.log('Destination connected:', this.audioContext.destination);
-        
-        if (this.isIOS()) {
-            console.log('iOS output gain value:', this.iosOutputGain?.gain?.value);
-            console.log('iOS routing enabled: true');
-        }
-        
         console.log('=== End Verification ===');
     }
     
-    ensureIOSAudioRouting() {
-        console.log('=== iOS Audio Routing Fix ===');
-        
-        // Boost master gain for iOS
-        if (this.masterGain) {
-            const currentGain = this.masterGain.gain.value;
-            const boostedGain = Math.max(currentGain, 0.8); // Ensure minimum volume
-            this.masterGain.gain.value = boostedGain;
-            console.log('iOS master gain set to:', boostedGain);
-        }
-        
-        // Boost iOS output gain if it exists
-        if (this.iosOutputGain) {
-            this.iosOutputGain.gain.value = 1.2; // Slight boost for iOS
-            console.log('iOS output gain boosted to: 1.2');
-        }
-        
-        // Force a test tone to ensure routing works
-        this.testIOSAudioRouting();
-        
-        console.log('=== iOS Routing Fix Complete ===');
-    }
     
-    testIOSAudioRouting() {
-        try {
-            // Create a brief test tone to verify audio routing
-            const testOsc = this.audioContext.createOscillator();
-            const testGain = this.audioContext.createGain();
-            
-            testOsc.frequency.setValueAtTime(440, this.audioContext.currentTime);
-            testGain.gain.setValueAtTime(0, this.audioContext.currentTime);
-            testGain.gain.setValueAtTime(0.2, this.audioContext.currentTime + 0.01);
-            testGain.gain.setValueAtTime(0, this.audioContext.currentTime + 0.2);
-            
-            testOsc.connect(testGain);
-            testGain.connect(this.audioContext.destination);
-            
-            testOsc.start(this.audioContext.currentTime);
-            testOsc.stop(this.audioContext.currentTime + 0.2);
-            
-            console.log('iOS test tone triggered for routing verification');
-            
-            // iOS diagnostics removed for production
-            
-        } catch (error) {
-            console.log('iOS test tone failed:', error);
-        }
-    }
     
 
     generateAudio(event) {
@@ -618,11 +544,6 @@ class SoundDesignerEngine {
 
     // Control methods
     updateEQBand(bandName, gainDb) {
-        if (this.isIOS()) {
-            console.log('EQ disabled in iOS simplified mode');
-            return;
-        }
-        
         const bandIndex = this.eqFrequencies.findIndex(band => band.name === bandName);
         if (bandIndex !== -1 && this.eqBands[bandIndex]) {
             this.eqBands[bandIndex].gain.value = gainDb;
@@ -658,11 +579,6 @@ class SoundDesignerEngine {
     }
 
     updateEffect(effectName, value) {
-        if (this.isIOS()) {
-            console.log('Effects disabled in iOS simplified mode');
-            return;
-        }
-        
         const normalizedValue = value / 100;
         
         switch (effectName) {
@@ -761,10 +677,7 @@ class SoundDesignerEngine {
                 throw new Error(`AudioContext failed to start (state: ${this.audioContext.state})`);
             }
             
-            // iOS-specific volume boost and routing verification
-            if (this.isIOS()) {
-                this.ensureIOSAudioRouting();
-            }
+            // Audio context verified and ready
             
             this.isPlaying = true;
             
