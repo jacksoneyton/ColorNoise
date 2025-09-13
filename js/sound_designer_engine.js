@@ -449,19 +449,67 @@ class SoundDesignerEngine {
             
             testOsc.frequency.setValueAtTime(440, this.audioContext.currentTime);
             testGain.gain.setValueAtTime(0, this.audioContext.currentTime);
-            testGain.gain.setValueAtTime(0.1, this.audioContext.currentTime + 0.01);
-            testGain.gain.setValueAtTime(0, this.audioContext.currentTime + 0.1);
+            testGain.gain.setValueAtTime(0.2, this.audioContext.currentTime + 0.01);
+            testGain.gain.setValueAtTime(0, this.audioContext.currentTime + 0.2);
             
             testOsc.connect(testGain);
             testGain.connect(this.audioContext.destination);
             
             testOsc.start(this.audioContext.currentTime);
-            testOsc.stop(this.audioContext.currentTime + 0.1);
+            testOsc.stop(this.audioContext.currentTime + 0.2);
             
             console.log('iOS test tone triggered for routing verification');
+            
+            // Comprehensive iOS diagnostics
+            setTimeout(() => {
+                this.runIOSDiagnostics();
+            }, 500);
+            
         } catch (error) {
             console.log('iOS test tone failed:', error);
         }
+    }
+    
+    runIOSDiagnostics() {
+        const diagnostics = {
+            userAgent: navigator.userAgent,
+            audioContextState: this.audioContext.state,
+            audioContextSampleRate: this.audioContext.sampleRate,
+            audioContextCurrentTime: this.audioContext.currentTime,
+            audioContextDestination: !!this.audioContext.destination,
+            audioContextDestinationChannelCount: this.audioContext.destination.channelCount,
+            audioContextDestinationChannelCountMode: this.audioContext.destination.channelCountMode,
+            audioContextDestinationChannelInterpretation: this.audioContext.destination.channelInterpretation,
+            audioContextOutputLatency: this.audioContext.outputLatency || 'unknown',
+            audioContextBaseLatency: this.audioContext.baseLatency || 'unknown',
+            scriptNodeBufferSize: this.scriptNode.bufferSize,
+            scriptNodeConnected: !!this.scriptNode.context,
+            iosSimpleGainConnected: !!this.iosSimpleGain?.context,
+            iosSimpleGainValue: this.iosSimpleGain?.gain?.value,
+            windowLocation: window.location.href,
+            isSecureContext: window.isSecureContext,
+            hasUserActivation: navigator.userActivation?.hasBeenActive || 'unknown',
+            mediaDevices: !!navigator.mediaDevices,
+            permissions: !!navigator.permissions
+        };
+        
+        console.log('=== iOS AUDIO DIAGNOSTICS ===');
+        console.log(JSON.stringify(diagnostics, null, 2));
+        console.log('=== END DIAGNOSTICS ===');
+        
+        // Show user the diagnostics
+        const diagString = Object.entries(diagnostics)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join('\\n');
+            
+        setTimeout(() => {
+            alert('iOS Diagnostics (check console for full details):\\n\\n' + 
+                  'AudioContext State: ' + diagnostics.audioContextState + '\\n' +
+                  'Sample Rate: ' + diagnostics.audioContextSampleRate + '\\n' +
+                  'Buffer Size: ' + diagnostics.scriptNodeBufferSize + '\\n' +
+                  'Secure Context: ' + diagnostics.isSecureContext + '\\n' +
+                  'User Activation: ' + diagnostics.hasUserActivation);
+        }, 1000);
     }
 
     generateAudio(event) {

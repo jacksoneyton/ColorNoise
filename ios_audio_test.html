@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Audio Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #222;
+            color: white;
+            text-align: center;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            background: #333;
+            border-radius: 5px;
+        }
+        .working { background: #28a745; }
+        .error { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>iOS Audio Test</h1>
+    <p>This page tests basic Web Audio API functionality on iOS</p>
+    
+    <div id="status" class="status">Ready to test...</div>
+    
+    <button onclick="testBasicOscillator()">Test 1: Basic Oscillator</button>
+    <button onclick="testAudioBuffer()">Test 2: Audio Buffer</button>
+    <button onclick="testScriptProcessor()">Test 3: Script Processor</button>
+    <button onclick="checkAudioContext()">Check Audio Context</button>
+    
+    <div id="diagnostics" style="margin-top: 20px; text-align: left; font-size: 12px;"></div>
+
+    <script>
+        let audioContext = null;
+        let testNumber = 0;
+
+        function log(message, isError = false) {
+            const status = document.getElementById('status');
+            const diagnostics = document.getElementById('diagnostics');
+            
+            status.textContent = message;
+            status.className = 'status ' + (isError ? 'error' : 'working');
+            
+            diagnostics.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+            console.log(message);
+        }
+
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent);
+        }
+
+        async function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    log(`AudioContext created: ${audioContext.state}`);
+                    
+                    if (audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                        log(`AudioContext resumed: ${audioContext.state}`);
+                    }
+                } catch (error) {
+                    log(`AudioContext creation failed: ${error.message}`, true);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function testBasicOscillator() {
+            testNumber++;
+            log(`Test ${testNumber}: Starting basic oscillator test...`);
+            
+            if (!await initAudioContext()) return;
+            
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.setValueAtTime(440, audioContext.currentTime);
+                gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gain.gain.setValueAtTime(0, audioContext.currentTime + 1);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + 1);
+                
+                log(`Test ${testNumber}: Oscillator should be playing 440Hz for 1 second`);
+                
+                setTimeout(() => {
+                    const heard = confirm('Did you hear a 440Hz tone for 1 second?');
+                    log(`Test ${testNumber}: User ${heard ? 'HEARD' : 'DID NOT HEAR'} the tone`);
+                }, 1500);
+                
+            } catch (error) {
+                log(`Test ${testNumber}: Oscillator test failed: ${error.message}`, true);
+            }
+        }
+
+        async function testAudioBuffer() {
+            testNumber++;
+            log(`Test ${testNumber}: Starting audio buffer test...`);
+            
+            if (!await initAudioContext()) return;
+            
+            try {
+                // Create a simple sine wave buffer
+                const sampleRate = audioContext.sampleRate;
+                const duration = 0.5;
+                const buffer = audioContext.createBuffer(1, sampleRate * duration, sampleRate);
+                const channelData = buffer.getChannelData(0);
+                
+                for (let i = 0; i < channelData.length; i++) {
+                    channelData[i] = Math.sin(2 * Math.PI * 880 * i / sampleRate) * 0.1;
+                }
+                
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start(audioContext.currentTime);
+                
+                log(`Test ${testNumber}: Audio buffer should be playing 880Hz for 0.5 seconds`);
+                
+                setTimeout(() => {
+                    const heard = confirm('Did you hear a higher-pitched tone (880Hz) for 0.5 seconds?');
+                    log(`Test ${testNumber}: User ${heard ? 'HEARD' : 'DID NOT HEAR'} the buffer tone`);
+                }, 1000);
+                
+            } catch (error) {
+                log(`Test ${testNumber}: Audio buffer test failed: ${error.message}`, true);
+            }
+        }
+
+        async function testScriptProcessor() {
+            testNumber++;
+            log(`Test ${testNumber}: Starting script processor test...`);
+            
+            if (!await initAudioContext()) return;
+            
+            try {
+                const scriptNode = audioContext.createScriptProcessor(4096, 0, 1);
+                const gain = audioContext.createGain();
+                gain.gain.value = 0.05;
+                
+                let phase = 0;
+                scriptNode.onaudioprocess = function(event) {
+                    const output = event.outputBuffer.getChannelData(0);
+                    for (let i = 0; i < output.length; i++) {
+                        output[i] = Math.sin(phase) * 0.1;
+                        phase += 2 * Math.PI * 220 / audioContext.sampleRate;
+                        if (phase > 2 * Math.PI) phase -= 2 * Math.PI;
+                    }
+                };
+                
+                scriptNode.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                log(`Test ${testNumber}: Script processor generating 220Hz tone - should hear continuous sound`);
+                
+                setTimeout(() => {
+                    const heard = confirm('Did you hear a continuous low-pitched tone (220Hz)?');
+                    log(`Test ${testNumber}: User ${heard ? 'HEARD' : 'DID NOT HEAR'} the script processor tone`);
+                    
+                    // Disconnect to stop the tone
+                    scriptNode.disconnect();
+                    gain.disconnect();
+                }, 3000);
+                
+            } catch (error) {
+                log(`Test ${testNumber}: Script processor test failed: ${error.message}`, true);
+            }
+        }
+
+        function checkAudioContext() {
+            if (!audioContext) {
+                log('No AudioContext created yet', true);
+                return;
+            }
+            
+            const info = {
+                state: audioContext.state,
+                sampleRate: audioContext.sampleRate,
+                currentTime: audioContext.currentTime.toFixed(2),
+                destination: {
+                    channelCount: audioContext.destination.channelCount,
+                    channelCountMode: audioContext.destination.channelCountMode,
+                    channelInterpretation: audioContext.destination.channelInterpretation
+                },
+                userAgent: navigator.userAgent,
+                isIOS: isIOS(),
+                isSecureContext: window.isSecureContext,
+                location: window.location.href
+            };
+            
+            log('AudioContext info logged to console');
+            console.log('=== AUDIO CONTEXT INFO ===');
+            console.log(JSON.stringify(info, null, 2));
+            console.log('=== END INFO ===');
+            
+            alert('AudioContext State: ' + info.state + 
+                  '\\nSample Rate: ' + info.sampleRate + 
+                  '\\nChannel Count: ' + info.destination.channelCount +
+                  '\\nIs iOS: ' + info.isIOS +
+                  '\\nSecure Context: ' + info.isSecureContext);
+        }
+
+        // Auto-run diagnostics on iOS
+        if (isIOS()) {
+            log('iOS device detected - ready for manual testing');
+        }
+    </script>
+</body>
+</html>
