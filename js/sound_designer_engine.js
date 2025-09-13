@@ -220,10 +220,15 @@ class SoundDesignerEngine {
             // Verify audio context is running
             if (this.audioContext.state === 'running') {
                 this.iOSUnlocked = true;
-                this.hideMobileNotice(); // Hide notice once audio is working
                 console.log('iOS audio successfully unlocked');
+                
+                // Alert user about simplified mode
+                setTimeout(() => {
+                    alert('iOS Audio Active: Using simplified audio path. EQ and effects are disabled for iOS compatibility.');
+                }, 500);
             } else {
                 console.log('iOS audio unlock incomplete, state:', this.audioContext.state);
+                alert('iOS Audio Warning: AudioContext state is ' + this.audioContext.state + '. Audio may not work.');
             }
         } catch (error) {
             console.log('iOS audio unlock failed:', error);
@@ -333,6 +338,30 @@ class SoundDesignerEngine {
     }
 
     connectAudioGraph() {
+        if (this.isIOS()) {
+            // Simplified iOS audio path - direct routing only
+            console.log('Using simplified iOS audio path');
+            
+            this.iosSimpleGain = this.audioContext.createGain();
+            this.iosSimpleGain.gain.value = 0.8;
+            
+            // Direct connection: ScriptProcessor → Gain → Destination
+            this.scriptNode.connect(this.iosSimpleGain);
+            this.iosSimpleGain.connect(this.audioContext.destination);
+            
+            // Still connect to analyzer for spectrum display
+            this.iosAnalyzerGain = this.audioContext.createGain();
+            this.iosAnalyzerGain.gain.value = 1.0;
+            this.iosSimpleGain.connect(this.iosAnalyzerGain);
+            this.iosAnalyzerGain.connect(this.analyser);
+            
+            console.log('iOS simplified audio graph connected');
+            return;
+        }
+        
+        // Full complex audio path for non-iOS devices
+        console.log('Using full audio processing path');
+        
         // Connect script processor to EQ chain (always connected, but will generate silence when stopped)
         this.scriptNode.connect(this.eqBands[0]);
         
@@ -359,35 +388,17 @@ class SoundDesignerEngine {
         this.limiter.curve = this.createSoftLimiterCurve();
         this.limiter.oversample = '2x';
         
-        // Output with limiter - iOS-specific routing
+        // Output with limiter
         this.compressor.connect(this.masterGain);
         this.masterGain.connect(this.limiter);
         this.limiter.connect(this.analyser);
-        
-        // iOS-specific audio routing fix
-        if (this.isIOS()) {
-            // Create direct bypass for iOS
-            this.iosOutputGain = this.audioContext.createGain();
-            this.iosOutputGain.gain.value = 1.0;
-            
-            // Connect both analyzer and direct output
-            this.analyser.connect(this.iosOutputGain);
-            this.iosOutputGain.connect(this.audioContext.destination);
-            
-            console.log('iOS-specific audio routing enabled');
-        } else {
-            // Standard connection for other platforms
-            this.analyser.connect(this.audioContext.destination);
-        }
+        this.analyser.connect(this.audioContext.destination);
         
         // Set initial reverb mix
         this.dryGain.gain.value = 0.8;
         this.reverbGain.gain.value = 0.2;
         
-        // Verify audio routing
-        this.verifyAudioRouting();
-        
-        console.log('Audio graph connected with script processor');
+        console.log('Full audio graph connected with script processor');
     }
     
     verifyAudioRouting() {
@@ -609,6 +620,11 @@ class SoundDesignerEngine {
 
     // Control methods
     updateEQBand(bandName, gainDb) {
+        if (this.isIOS()) {
+            console.log('EQ disabled in iOS simplified mode');
+            return;
+        }
+        
         const bandIndex = this.eqFrequencies.findIndex(band => band.name === bandName);
         if (bandIndex !== -1 && this.eqBands[bandIndex]) {
             this.eqBands[bandIndex].gain.value = gainDb;
@@ -644,6 +660,11 @@ class SoundDesignerEngine {
     }
 
     updateEffect(effectName, value) {
+        if (this.isIOS()) {
+            console.log('Effects disabled in iOS simplified mode');
+            return;
+        }
+        
         const normalizedValue = value / 100;
         
         switch (effectName) {
@@ -745,6 +766,11 @@ class SoundDesignerEngine {
             // iOS-specific volume boost and routing verification
             if (this.isIOS()) {
                 this.ensureIOSAudioRouting();
+                
+                // Debug alert for iOS audio start
+                setTimeout(() => {
+                    alert('iOS Debug: Audio should now be playing through simplified path. Can you hear it?');
+                }, 1000);
             }
             
             this.isPlaying = true;
