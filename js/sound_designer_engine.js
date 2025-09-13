@@ -221,14 +221,8 @@ class SoundDesignerEngine {
             if (this.audioContext.state === 'running') {
                 this.iOSUnlocked = true;
                 console.log('iOS audio successfully unlocked');
-                
-                // Alert user about simplified mode
-                setTimeout(() => {
-                    alert('iOS Audio Active: Using simplified audio path. EQ and effects are disabled for iOS compatibility.');
-                }, 500);
             } else {
                 console.log('iOS audio unlock incomplete, state:', this.audioContext.state);
-                alert('iOS Audio Warning: AudioContext state is ' + this.audioContext.state + '. Audio may not work.');
             }
         } catch (error) {
             console.log('iOS audio unlock failed:', error);
@@ -460,57 +454,13 @@ class SoundDesignerEngine {
             
             console.log('iOS test tone triggered for routing verification');
             
-            // Comprehensive iOS diagnostics
-            setTimeout(() => {
-                this.runIOSDiagnostics();
-            }, 500);
+            // iOS diagnostics removed for production
             
         } catch (error) {
             console.log('iOS test tone failed:', error);
         }
     }
     
-    runIOSDiagnostics() {
-        const diagnostics = {
-            userAgent: navigator.userAgent,
-            audioContextState: this.audioContext.state,
-            audioContextSampleRate: this.audioContext.sampleRate,
-            audioContextCurrentTime: this.audioContext.currentTime,
-            audioContextDestination: !!this.audioContext.destination,
-            audioContextDestinationChannelCount: this.audioContext.destination.channelCount,
-            audioContextDestinationChannelCountMode: this.audioContext.destination.channelCountMode,
-            audioContextDestinationChannelInterpretation: this.audioContext.destination.channelInterpretation,
-            audioContextOutputLatency: this.audioContext.outputLatency || 'unknown',
-            audioContextBaseLatency: this.audioContext.baseLatency || 'unknown',
-            scriptNodeBufferSize: this.scriptNode.bufferSize,
-            scriptNodeConnected: !!this.scriptNode.context,
-            iosSimpleGainConnected: !!this.iosSimpleGain?.context,
-            iosSimpleGainValue: this.iosSimpleGain?.gain?.value,
-            windowLocation: window.location.href,
-            isSecureContext: window.isSecureContext,
-            hasUserActivation: navigator.userActivation?.hasBeenActive || 'unknown',
-            mediaDevices: !!navigator.mediaDevices,
-            permissions: !!navigator.permissions
-        };
-        
-        console.log('=== iOS AUDIO DIAGNOSTICS ===');
-        console.log(JSON.stringify(diagnostics, null, 2));
-        console.log('=== END DIAGNOSTICS ===');
-        
-        // Show user the diagnostics
-        const diagString = Object.entries(diagnostics)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join('\\n');
-            
-        setTimeout(() => {
-            alert('iOS Diagnostics (check console for full details):\\n\\n' + 
-                  'AudioContext State: ' + diagnostics.audioContextState + '\\n' +
-                  'Sample Rate: ' + diagnostics.audioContextSampleRate + '\\n' +
-                  'Buffer Size: ' + diagnostics.scriptNodeBufferSize + '\\n' +
-                  'Secure Context: ' + diagnostics.isSecureContext + '\\n' +
-                  'User Activation: ' + diagnostics.hasUserActivation);
-        }, 1000);
-    }
 
     generateAudio(event) {
         const outputL = event.outputBuffer.getChannelData(0);
@@ -814,11 +764,6 @@ class SoundDesignerEngine {
             // iOS-specific volume boost and routing verification
             if (this.isIOS()) {
                 this.ensureIOSAudioRouting();
-                
-                // Debug alert for iOS audio start
-                setTimeout(() => {
-                    alert('iOS Debug: Audio should now be playing through simplified path. Can you hear it?');
-                }, 1000);
             }
             
             this.isPlaying = true;
