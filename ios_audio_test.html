@@ -188,11 +188,14 @@
             }
         }
 
-        function checkAudioContext() {
+        async function checkAudioContext() {
             if (!audioContext) {
                 log('No AudioContext created yet', true);
                 return;
             }
+            
+            // Check for iOS-specific audio issues
+            const iosChecks = await performIOSAudioChecks();
             
             const info = {
                 state: audioContext.state,
@@ -206,7 +209,8 @@
                 userAgent: navigator.userAgent,
                 isIOS: isIOS(),
                 isSecureContext: window.isSecureContext,
-                location: window.location.href
+                location: window.location.href,
+                iosAudioChecks: iosChecks
             };
             
             log('AudioContext info logged to console');
@@ -214,11 +218,61 @@
             console.log(JSON.stringify(info, null, 2));
             console.log('=== END INFO ===');
             
-            alert('AudioContext State: ' + info.state + 
-                  '\\nSample Rate: ' + info.sampleRate + 
-                  '\\nChannel Count: ' + info.destination.channelCount +
-                  '\\nIs iOS: ' + info.isIOS +
-                  '\\nSecure Context: ' + info.isSecureContext);
+            const criticalIssues = [];
+            if (!info.isSecureContext) criticalIssues.push('❌ Not HTTPS');
+            if (info.state !== 'running') criticalIssues.push('❌ AudioContext not running');
+            if (iosChecks.suspectedSilentMode) criticalIssues.push('❌ Suspected Silent Mode');
+            if (iosChecks.lowVolume) criticalIssues.push('⚠️ Very low system volume');
+            
+            alert('iOS Audio Diagnosis:\\n\\n' +
+                  'AudioContext: ' + info.state + '\\n' +
+                  'HTTPS: ' + info.isSecureContext + '\\n' +
+                  'Sample Rate: ' + info.sampleRate + '\\n\\n' +
+                  'Potential Issues:\\n' +
+                  (criticalIssues.length > 0 ? criticalIssues.join('\\n') : '✅ No obvious issues detected') + '\\n\\n' +
+                  'CRITICAL: Check iPhone Silent Mode switch!');
+        }
+        
+        async function performIOSAudioChecks() {
+            const checks = {
+                suspectedSilentMode: false,
+                lowVolume: false,
+                audioPermissions: 'unknown',
+                mediaCapabilities: false
+            };
+            
+            // Check if we can access media devices (indicator of audio permissions)
+            try {
+                if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    checks.mediaCapabilities = devices.length > 0;
+                }
+            } catch (e) {
+                checks.audioPermissions = 'denied';
+            }
+            
+            // Attempt to detect silent mode by testing system audio response
+            if (audioContext && audioContext.state === 'running') {
+                try {
+                    const testOsc = audioContext.createOscillator();
+                    const testGain = audioContext.createGain();
+                    testGain.gain.value = 0.001; // Very quiet
+                    
+                    testOsc.connect(testGain);
+                    testGain.connect(audioContext.destination);
+                    
+                    testOsc.start(audioContext.currentTime);
+                    testOsc.stop(audioContext.currentTime + 0.1);
+                    
+                    // If we can't detect any audio output characteristics, might be silent mode
+                    // This is a heuristic, not definitive
+                    checks.suspectedSilentMode = audioContext.outputLatency === undefined;
+                } catch (e) {
+                    checks.suspectedSilentMode = true;
+                }
+            }
+            
+            return checks;
         }
 
         // Auto-run diagnostics on iOS
