@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procedural Sound Designer</title>
+    <title>ColorNoise • Professional Sound Design</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -12,617 +12,556 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary-accent: #ff6b9d;
+            --accent-light: #ff85b3;
+            --bg-primary: #1a0d2e;
+            --bg-secondary: #2d1b3d;
+            --bg-tertiary: #4a2c5a;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --glass: rgba(255, 255, 255, 0.02);
+            --glass-hover: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #ffffff;
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(ellipse at 25% 25%, rgba(255, 107, 157, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 75%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
             min-height: 100vh;
+            line-height: 1.5;
+            font-size: 15px;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+        .app {
+            min-height: 100vh;
+            padding: clamp(12px, 3vw, 24px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 4vw, 32px);
         }
 
+        /* Header */
         .header {
             text-align: center;
-            margin-bottom: 40px;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
             font-weight: 700;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         .header p {
-            color: #b8c5d6;
-            font-size: 1.1rem;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            color: var(--text-secondary);
+            font-weight: 400;
         }
 
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(16px, 3vw, 24px);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            background: var(--glass-hover);
+        }
+
+        /* Main Interface */
         .main-interface {
             display: grid;
-            grid-template-columns: 1fr 400px 1fr;
-            gap: 40px;
-            align-items: start;
-        }
-
-        /* Central Circular Interface */
-        .central-control {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 400px;
-        }
-
-        .sound-wheel {
-            position: relative;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border: 3px solid #ffd700;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
-        }
-
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #1a1a2e;
-            font-weight: 700;
-            font-size: 1.1rem;
-            text-align: center;
-            cursor: pointer !important;
-            transition: all 0.3s ease;
-            z-index: 100;
-            pointer-events: auto;
-        }
-
-        .wheel-center:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        .wheel-center.playing {
-            animation: pulse 2s infinite;
-            background: linear-gradient(135deg, #ff4444 0%, #ff6666 100%);
-        }
-
-        .wheel-center.stopped {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(255, 68, 68, 0.8); }
-        }
-
-        .noise-types {
-            position: absolute;
+            gap: clamp(16px, 4vw, 24px);
+            flex: 1;
+            max-width: 900px;
+            margin: 0 auto;
             width: 100%;
-            height: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .main-interface {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Central Control */
+        .central-control {
+            padding: clamp(20px, 5vw, 32px);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(24px, 6vw, 32px);
+            order: -1;
+        }
+
+        @media (min-width: 768px) {
+            .central-control {
+                order: 0;
+            }
+        }
+
+        /* Play Button */
+        .play-section {
+            text-align: center;
+        }
+
+        .play-button {
+            width: clamp(80px, 20vw, 100px);
+            height: clamp(80px, 20vw, 100px);
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            border: none;
+            color: white;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+        }
+
+        .status-text {
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Noise Selection */
+        .noise-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: clamp(8px, 2vw, 12px);
         }
 
         .noise-type {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3a3a5a 0%, #2a2a4a 100%);
-            border: 2px solid #ffd700;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(8px, 2vw, 12px);
+            padding: clamp(8px, 2vw, 12px);
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.2rem;
+            text-align: center;
+            min-height: clamp(50px, 12vw, 65px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .noise-type::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: inherit;
         }
 
         .noise-type:hover {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a1a2e;
-            transform: scale(1.1);
+            transform: translateY(-1px);
+            border-color: rgba(255, 107, 157, 0.3);
         }
 
         .noise-type.active {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a1a2e;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            border-color: var(--primary-accent);
         }
 
-        /* Position noise types around circle */
-        .noise-type:nth-child(1) { top: 10px; left: 50%; transform: translateX(-50%); }
-        .noise-type:nth-child(2) { top: 25px; right: 25px; }
-        .noise-type:nth-child(3) { top: 50%; right: 10px; transform: translateY(-50%); }
-        .noise-type:nth-child(4) { bottom: 25px; right: 25px; }
-        .noise-type:nth-child(5) { bottom: 10px; left: 50%; transform: translateX(-50%); }
-        .noise-type:nth-child(6) { bottom: 25px; left: 25px; }
-        .noise-type:nth-child(7) { top: 50%; left: 10px; transform: translateY(-50%); }
-        .noise-type:nth-child(8) { top: 25px; left: 25px; }
-
-        /* EQ Panel */
-        .eq-panel {
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid #3a3a5a;
+        .noise-type.active::after {
+            opacity: 0.1;
         }
 
-        .eq-title {
-            font-size: 1.5rem;
+        .noise-type.active .noise-name {
+            color: var(--primary-accent);
+        }
+
+        .noise-name {
+            font-size: clamp(0.7rem, 1.8vw, 0.85rem);
             font-weight: 600;
-            margin-bottom: 25px;
-            text-align: center;
-            color: #ffd700;
+            margin-bottom: 2px;
+            position: relative;
+            z-index: 1;
         }
 
-        .eq-bands {
-            display: grid;
-            gap: 20px;
+        .noise-desc {
+            font-size: clamp(0.6rem, 1.5vw, 0.7rem);
+            color: var(--text-muted);
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
         }
 
-        .eq-band {
+        /* Controls Panel */
+        .controls-panel {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* Tabs */
+        .tab-header {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        .eq-label {
-            width: 80px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #b8c5d6;
-        }
-
-        .eq-slider-container {
+        .tab-button {
             flex: 1;
+            padding: clamp(12px, 3vw, 16px) clamp(16px, 4vw, 24px);
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
             position: relative;
         }
 
-        .eq-slider {
-            width: 100%;
-            height: 40px;
-            -webkit-appearance: none;
-            background: linear-gradient(90deg, #1a1a3a 0%, #2a2a4a 50%, #1a1a3a 100%);
-            border-radius: 20px;
-            outline: none;
-            border: 1px solid #3a3a5a;
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
         }
 
-        .eq-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        .tab-button.active {
+            color: var(--primary-accent);
+            background: rgba(255, 107, 157, 0.05);
         }
 
-        .eq-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-accent);
         }
 
-        .eq-value {
-            width: 60px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #ffd700;
-            background: #1a1a3a;
-            border: 1px solid #3a3a5a;
-            border-radius: 4px;
-            padding: 4px;
-            outline: none;
-        }
-
-        .eq-value:focus {
-            border-color: #ffd700;
-            box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
-        }
-
-        /* Effects Panel */
-        .effects-panel {
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid #3a3a5a;
-        }
-
-        .effects-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 25px;
-            text-align: center;
-            color: #ffd700;
-        }
-
-        .effect-control {
-            margin-bottom: 20px;
-        }
-
-        .effect-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #b8c5d6;
-            margin-bottom: 8px;
-        }
-
-        .effect-slider {
-            width: 100%;
-            height: 35px;
-            -webkit-appearance: none;
-            background: linear-gradient(90deg, #1a1a3a 0%, #2a2a4a 100%);
-            border-radius: 17px;
-            outline: none;
-            border: 1px solid #3a3a5a;
-        }
-
-        .effect-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            cursor: pointer;
-        }
-
-        /* Profile Controls */
-        .profile-controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        .profile-btn {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #1a1a2e;
-            border: none;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .profile-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-        }
-
-        /* Spectrum Analyzer */
-        .spectrum-display {
-            grid-column: span 3;
-            margin-top: 40px;
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border-radius: 20px;
-            padding: 30px;
-            border: 2px solid #3a3a5a;
-        }
-
-        .spectrum-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #ffd700;
-        }
-
-        #spectrumCanvas {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            background: #000;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .main-interface {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .central-control {
-                height: 350px;
-            }
-            
-            .sound-wheel {
-                width: 300px;
-                height: 300px;
-            }
-        }
-
-        .hidden-input {
+        .tab-content {
+            padding: clamp(20px, 5vw, 32px);
             display: none;
         }
 
-        /* Mobile Notice */
-        .mobile-notice {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border: 2px solid #ffd700;
-            border-radius: 15px;
-            padding: 15px 25px;
-            color: #ffd700;
-            text-align: center;
-            font-size: 0.9rem;
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Control Groups */
+        .control-group {
+            margin-bottom: clamp(16px, 4vw, 20px);
+        }
+
+        .control-label {
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
             font-weight: 500;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
-            z-index: 1001;
-            animation: fadeInUp 0.5s ease-out;
+            color: var(--text-secondary);
+            margin-bottom: clamp(6px, 1.5vw, 8px);
+            display: block;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        /* Volume and Master Controls */
-        .master-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
-            border-radius: 50px;
-            padding: 15px 30px;
-            border: 2px solid #3a3a5a;
+        .slider-container {
             display: flex;
             align-items: center;
-            gap: 20px;
-            z-index: 1000;
+            gap: clamp(12px, 3vw, 16px);
         }
 
-        .volume-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .volume-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #b8c5d6;
-        }
-
-        .volume-slider {
-            width: 120px;
-            height: 30px;
+        .slider {
+            flex: 1;
+            height: 6px;
             -webkit-appearance: none;
-            background: linear-gradient(90deg, #1a1a3a 0%, #2a2a4a 100%);
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
             outline: none;
-            border: 1px solid #3a3a5a;
+            border: none;
         }
 
-        .volume-slider::-webkit-slider-thumb {
+        .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
             cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
         }
 
-        .volume-value {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #ffd700;
-            width: 40px;
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .value-display {
+            min-width: 40px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            font-weight: 500;
+            color: var(--primary-accent);
             text-align: center;
+            outline: none;
+        }
+
+        /* Spectrum */
+        .spectrum-panel {
+            grid-column: 1 / -1;
+            padding: clamp(20px, 5vw, 32px);
+            margin-top: clamp(16px, 4vw, 24px);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .spectrum-title {
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: clamp(12px, 3vw, 16px);
+            text-align: center;
+        }
+
+        #spectrumCanvas {
+            width: 100%;
+            height: clamp(120px, 25vw, 180px);
+            border-radius: clamp(8px, 2vw, 12px);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Top Nav */
+        .top-nav {
+            position: fixed;
+            top: clamp(12px, 3vw, 16px);
+            right: clamp(12px, 3vw, 16px);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px);
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(12px, 3vw, 16px);
+            font-weight: 500;
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--glass-hover);
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            color: white;
+        }
+
+        /* Mobile Portrait Optimization */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .noise-selection {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .noise-type {
+                min-height: 45px;
+                padding: 6px;
+            }
+
+            .noise-name {
+                font-size: 0.65rem;
+                margin-bottom: 1px;
+            }
+
+            .noise-desc {
+                font-size: 0.55rem;
+            }
+        }
+
+        /* Landscape Mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .noise-selection {
+                grid-template-columns: repeat(8, 1fr);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <button class="nav-btn" onclick="exportProfile()">Export</button>
+            <button class="nav-btn primary" onclick="document.getElementById('importFile').click()">Import</button>
+            <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importProfile(event)">
+        </div>
+
+        <!-- Header -->
         <div class="header">
-            <h1>Procedural Sound Designer</h1>
-            <p>Swiss Army Knife for Custom Noise Generation</p>
+            <h1>ColorNoise</h1>
+            <p>Professional Sound Design</p>
         </div>
 
-        <div class="profile-controls">
-            <button class="profile-btn" onclick="exportProfile()">Export Profile</button>
-            <button class="profile-btn" onclick="document.getElementById('importFile').click()">Import Profile</button>
-            <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importProfile(event)">
-        </div>
-
+        <!-- Main Interface -->
         <div class="main-interface">
-            <!-- EQ Panel -->
-            <div class="eq-panel">
-                <h2 class="eq-title">10-Band Equalizer</h2>
-                <div class="eq-bands">
-                    <div class="eq-band">
-                        <div class="eq-label">Sub-bass</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-subbass" min="-30" max="30" value="0" step="0.1">
+            <!-- Audio Controls -->
+            <div class="glass-panel controls-panel">
+                <div class="tab-header">
+                    <button class="tab-button active" onclick="switchTab('eq')">EQ</button>
+                    <button class="tab-button" onclick="switchTab('fx')">FX</button>
+                </div>
+
+                <!-- EQ Tab -->
+                <div class="tab-content active" id="tab-eq">
+                    <div class="control-group">
+                        <label class="control-label">Sub-bass</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="eq-subbass" min="-30" max="30" value="0" step="0.1">
+                            <input type="number" class="value-display" id="val-subbass" min="-30" max="30" step="0.1" value="0">
                         </div>
-                        <input type="number" class="eq-value" id="val-subbass" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Bass</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-bass" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Bass</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="eq-bass" min="-30" max="30" value="0" step="0.1">
+                            <input type="number" class="value-display" id="val-bass" min="-30" max="30" step="0.1" value="0">
                         </div>
-                        <input type="number" class="eq-value" id="val-bass" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Low-bass</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-lowbass" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Mid</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="eq-mid" min="-30" max="30" value="0" step="0.1">
+                            <input type="number" class="value-display" id="val-mid" min="-30" max="30" step="0.1" value="0">
                         </div>
-                        <input type="number" class="eq-value" id="val-lowbass" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Low-mid</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-lowmid" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Treble</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="eq-treble" min="-30" max="30" value="0" step="0.1">
+                            <input type="number" class="value-display" id="val-treble" min="-30" max="30" step="0.1" value="0">
                         </div>
-                        <input type="number" class="eq-value" id="val-lowmid" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Mid</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-mid" min="-30" max="30" value="0" step="0.1">
+                </div>
+
+                <!-- FX Tab -->
+                <div class="tab-content" id="tab-fx">
+                    <div class="control-group">
+                        <label class="control-label">Reverb</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="reverb" min="0" max="100" value="40" step="1">
+                            <input type="number" class="value-display" id="val-reverb" min="0" max="100" step="1" value="40">
                         </div>
-                        <input type="number" class="eq-value" id="val-mid" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Upper-mid</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-uppermid" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Spatial</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="spatial" min="0" max="100" value="50" step="1">
+                            <input type="number" class="value-display" id="val-spatial" min="0" max="100" step="1" value="50">
                         </div>
-                        <input type="number" class="eq-value" id="val-uppermid" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Low-treble</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-lowtreble" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Warmth</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="warmth" min="0" max="100" value="30" step="1">
+                            <input type="number" class="value-display" id="val-warmth" min="0" max="100" step="1" value="30">
                         </div>
-                        <input type="number" class="eq-value" id="val-lowtreble" min="-30" max="30" step="0.1" value="0">
                     </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Treble</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-treble" min="-30" max="30" value="0" step="0.1">
+                    <div class="control-group">
+                        <label class="control-label">Dynamics</label>
+                        <div class="slider-container">
+                            <input type="range" class="slider" id="dynamics" min="0" max="100" value="60" step="1">
+                            <input type="number" class="value-display" id="val-dynamics" min="0" max="100" step="1" value="60">
                         </div>
-                        <input type="number" class="eq-value" id="val-treble" min="-30" max="30" step="0.1" value="0">
-                    </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Air</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-air" min="-30" max="30" value="0" step="0.1">
-                        </div>
-                        <input type="number" class="eq-value" id="val-air" min="-30" max="30" step="0.1" value="0">
-                    </div>
-                    <div class="eq-band">
-                        <div class="eq-label">Ultra-high</div>
-                        <div class="eq-slider-container">
-                            <input type="range" class="eq-slider" id="eq-ultrahigh" min="-30" max="30" value="0" step="0.1">
-                        </div>
-                        <input type="number" class="eq-value" id="val-ultrahigh" min="-30" max="30" step="0.1" value="0">
                     </div>
                 </div>
             </div>
 
             <!-- Central Control -->
-            <div class="central-control">
-                <div class="sound-wheel">
-                    <div class="wheel-center stopped" id="playButton" onclick="handlePlayButtonClick();" onmouseover="console.log('Mouse over button')">
+            <div class="glass-panel central-control">
+                <div class="play-section">
+                    <button class="play-button" id="playButton" onclick="handlePlayButtonClick();">
                         ▶ PLAY
-                    </div>
-                    <div class="noise-types">
-                        <div class="noise-type active" data-type="white" onclick="selectNoiseType(this, 'white')">W</div>
-                        <div class="noise-type" data-type="pink" onclick="selectNoiseType(this, 'pink')">P</div>
-                        <div class="noise-type" data-type="brown" onclick="selectNoiseType(this, 'brown')">B</div>
-                        <div class="noise-type" data-type="blue" onclick="selectNoiseType(this, 'blue')">BL</div>
-                        <div class="noise-type" data-type="violet" onclick="selectNoiseType(this, 'violet')">V</div>
-                        <div class="noise-type" data-type="gray" onclick="selectNoiseType(this, 'gray')">G</div>
-                        <div class="noise-type" data-type="red" onclick="selectNoiseType(this, 'red')">R</div>
-                        <div class="noise-type" data-type="green" onclick="selectNoiseType(this, 'green')">GR</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Effects Panel -->
-            <div class="effects-panel">
-                <h2 class="effects-title">Audio Effects</h2>
-                
-                <div class="effect-control">
-                    <div class="effect-label">Reverb Amount</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="reverb" min="0" max="100" value="40" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-reverb" min="0" max="100" step="1" value="40">
-                    </div>
+                    </button>
+                    <div class="status-text">Ready</div>
                 </div>
 
-                <div class="effect-control">
-                    <div class="effect-label">Spatial Width</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="spatial" min="0" max="100" value="50" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-spatial" min="0" max="100" step="1" value="50">
+                <div class="noise-selection">
+                    <div class="noise-type active" data-type="white" onclick="selectNoiseType(this, 'white')">
+                        <div class="noise-name">White</div>
+                        <div class="noise-desc">Flat</div>
                     </div>
-                </div>
-
-                <div class="effect-control">
-                    <div class="effect-label">Warmth Filter</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="warmth" min="0" max="100" value="30" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-warmth" min="0" max="100" step="1" value="30">
+                    <div class="noise-type" data-type="pink" onclick="selectNoiseType(this, 'pink')">
+                        <div class="noise-name">Pink</div>
+                        <div class="noise-desc">Natural</div>
                     </div>
-                </div>
-
-                <div class="effect-control">
-                    <div class="effect-label">Saturation</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="saturation" min="0" max="100" value="20" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-saturation" min="0" max="100" step="1" value="20">
+                    <div class="noise-type" data-type="brown" onclick="selectNoiseType(this, 'brown')">
+                        <div class="noise-name">Brown</div>
+                        <div class="noise-desc">Warm</div>
                     </div>
-                </div>
-
-                <div class="effect-control">
-                    <div class="effect-label">Dynamics</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="dynamics" min="0" max="100" value="60" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-dynamics" min="0" max="100" step="1" value="60">
+                    <div class="noise-type" data-type="blue" onclick="selectNoiseType(this, 'blue')">
+                        <div class="noise-name">Blue</div>
+                        <div class="noise-desc">Bright</div>
                     </div>
-                </div>
-
-                <div class="effect-control">
-                    <div class="effect-label">Modulation</div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <input type="range" class="effect-slider" id="modulation" min="0" max="100" value="25" step="1" style="flex: 1;">
-                        <input type="number" class="eq-value" id="val-modulation" min="0" max="100" step="1" value="25">
+                    <div class="noise-type" data-type="violet" onclick="selectNoiseType(this, 'violet')">
+                        <div class="noise-name">Violet</div>
+                        <div class="noise-desc">Sharp</div>
+                    </div>
+                    <div class="noise-type" data-type="gray" onclick="selectNoiseType(this, 'gray')">
+                        <div class="noise-name">Gray</div>
+                        <div class="noise-desc">Psycho</div>
+                    </div>
+                    <div class="noise-type" data-type="red" onclick="selectNoiseType(this, 'red')">
+                        <div class="noise-name">Red</div>
+                        <div class="noise-desc">Deep</div>
+                    </div>
+                    <div class="noise-type" data-type="green" onclick="selectNoiseType(this, 'green')">
+                        <div class="noise-name">Green</div>
+                        <div class="noise-desc">Calm</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Audio Notice -->
-        <div id="mobileNotice" class="mobile-notice" style="display: none;">
-            <p>📱 Mobile: Ensure Silent Mode is off for audio playback</p>
+        <!-- Spectrum -->
+        <div class="glass-panel spectrum-panel">
+            <h3 class="spectrum-title">Frequency Spectrum</h3>
+            <canvas id="spectrumCanvas" width="800" height="180"></canvas>
         </div>
-
-        <!-- Spectrum Display -->
-        <div class="spectrum-display">
-            <h3 class="spectrum-title">Real-time Frequency Spectrum</h3>
-            <canvas id="spectrumCanvas" width="800" height="200"></canvas>
-        </div>
-
-        <!-- Master Controls removed - using 100% volume by default -->
     </div>
 
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+    </script>
     <script src="js/sound_designer_engine.js"></script>
 </body>
 </html>
