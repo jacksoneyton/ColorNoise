@@ -1,0 +1,17 @@
+{
+  "name": "Natural Rain",
+  "description": "Pink noise shaped to sound like gentle rainfall",
+  "eq": {
+    "subbass": 5,
+    "bass": 8,
+    "mid": 2,
+    "treble": -6
+  },
+  "effects": {
+    "reverb": 55,
+    "spatial": 65,
+    "warmth": 40,
+    "dynamics": 55
+  },
+  "volume": 70
+}

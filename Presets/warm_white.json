@@ -1,0 +1,27 @@
+{
+  "name": "Deep and Warm",
+  "noiseType": "white",
+  "eq": {
+    "subbass": 1,
+    "bass": 20,
+    "lowbass": 15,
+    "lowmid": -8,
+    "mid": 4.4,
+    "uppermid": 8.6,
+    "lowtreble": -22.7,
+    "treble": -29.5,
+    "air": -30,
+    "ultrahigh": -30
+  },
+  "effects": {
+    "reverb": 100,
+    "spatial": 100,
+    "warmth": 100,
+    "saturation": 72,
+    "dynamics": 57,
+    "modulation": 0
+  },
+  "volume": 100,
+  "version": "1.0",
+  "created": "2025-09-10T22:49:18.304Z"
+}

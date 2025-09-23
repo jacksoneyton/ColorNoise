@@ -1,0 +1,17 @@
+{
+  "name": "Ocean Waves",
+  "description": "Gentle ocean waves with deep bass and spatial ambience",
+  "eq": {
+    "subbass": 15,
+    "bass": 12,
+    "mid": -3,
+    "treble": -8
+  },
+  "effects": {
+    "reverb": 65,
+    "spatial": 75,
+    "warmth": 45,
+    "dynamics": 40
+  },
+  "volume": 75
+}

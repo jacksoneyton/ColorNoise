@@ -145,6 +145,72 @@
             font-weight: 500;
         }
 
+        /* Preset Section */
+        .preset-section {
+            text-align: center;
+            margin-bottom: clamp(16px, 4vw, 24px);
+        }
+
+        .preset-label {
+            display: block;
+            font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .preset-selector {
+            width: 100%;
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 16px);
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(8px, 2vw, 12px);
+            color: var(--text-primary);
+            font-size: clamp(0.7rem, 1.6vw, 0.8rem);
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: clamp(8px, 2vw, 12px);
+        }
+
+        .preset-selector:focus {
+            border-color: var(--primary-accent);
+        }
+
+        .preset-selector option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: clamp(8px, 2vw, 12px);
+            justify-content: center;
+        }
+
+        .preset-btn {
+            padding: clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 16px);
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: clamp(6px, 1.5vw, 8px);
+            color: var(--text-primary);
+            font-size: clamp(0.65rem, 1.5vw, 0.75rem);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .preset-btn:hover {
+            background: var(--glass-hover);
+            border-color: rgba(255, 107, 157, 0.3);
+            transform: translateY(-1px);
+        }
+
         /* Noise Selection */
         .noise-selection {
             display: grid;
@@ -409,6 +475,137 @@
                 grid-template-columns: repeat(8, 1fr);
             }
         }
+
+        /* Submission Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 13, 46, 0.9);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-container {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .modal-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        }
+
+        .modal-btn.secondary {
+            background: var(--glass);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .modal-btn.secondary:hover {
+            background: var(--glass-hover);
+        }
+
+        .preset-preview {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -416,7 +613,8 @@
         <!-- Top Navigation -->
         <div class="top-nav">
             <button class="nav-btn" onclick="exportProfile()">Export</button>
-            <button class="nav-btn primary" onclick="document.getElementById('importFile').click()">Import</button>
+            <button class="nav-btn" onclick="document.getElementById('importFile').click()">Import</button>
+            <button class="nav-btn primary" onclick="submitPreset()">💝 Submit</button>
             <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importProfile(event)">
         </div>
 
@@ -509,6 +707,14 @@
                     <div class="status-text">Ready</div>
                 </div>
 
+                <!-- Preset Selector -->
+                <div class="preset-section">
+                    <label class="preset-label">Quick Presets</label>
+                    <select id="presetSelector" class="preset-selector" onchange="loadSelectedPreset()">
+                        <option value="">Select a preset...</option>
+                    </select>
+                </div>
+
                 <div class="noise-selection">
                     <div class="noise-type active" data-type="white" onclick="selectNoiseType(this, 'white')">
                         <div class="noise-name">White</div>
@@ -553,6 +759,53 @@
         </div>
     </div>
 
+    <!-- Submission Modal -->
+    <div class="modal-overlay" id="submissionModal">
+        <div class="modal-container" style="max-width: 800px;">
+            <h2 class="modal-title">💝 Submit Your Preset</h2>
+            <p class="modal-text">
+                Share your custom sound profile with the ColorNoise community! Fill out the form below with your current settings.
+            </p>
+
+            <div style="background: rgba(255, 107, 157, 0.1); border: 1px solid rgba(255, 107, 157, 0.3); border-radius: 12px; padding: 16px; margin: 20px 0;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <span style="color: #ff6b9d; font-size: 1.2rem;">🎵</span>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Current Settings Preview:</span>
+                </div>
+                <div id="currentSettingsPreview" style="font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-muted); line-height: 1.4;"></div>
+            </div>
+
+            <!-- Google Form Embed Container -->
+            <div id="googleFormContainer" style="display: none;">
+                <iframe id="googleFormFrame"
+                        width="100%"
+                        height="600"
+                        frameborder="0"
+                        marginheight="0"
+                        marginwidth="0"
+                        style="border-radius: 12px; background: var(--glass);">
+                    Loading…
+                </iframe>
+            </div>
+
+            <!-- Fallback for form setup -->
+            <div id="setupInstructions" style="text-align: center; padding: 40px 20px;">
+                <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 12px; padding: 24px;">
+                    <h3 style="color: #fbbf24; margin: 0 0 16px 0;">⚙️ Form Setup Required</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                        Google Forms integration needs to be configured. Please check the instructions in the developer console.
+                    </p>
+                    <button class="modal-btn secondary" onclick="showEmailFallback()" style="margin-right: 12px;">📧 Use Email Instead</button>
+                    <button class="modal-btn primary" onclick="copyCurrentSettings()">📋 Copy Settings</button>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeSubmissionModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -561,7 +814,185 @@
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
         }
+
+        // Google Forms Configuration
+        const GOOGLE_FORM_CONFIG = {
+            // Your Google Form URL
+            baseUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSejpn_Av8oV6WI0HzZ0GpRgRcC9EiJNwv4EAi799Z7RU_bKNw/viewform',
+
+            // Field entry IDs from your form
+            fields: {
+                presetName: 'entry.992472029',
+                description: 'entry.1289108992',
+                creator: 'entry.1614830393',
+                noiseType: '', // This field wasn't found - might be a dropdown/radio
+                jsonData: 'entry.387533274'
+            }
+        };
+
+        // Preset Submission System
+        function submitPreset() {
+            // Show the submission modal
+            document.getElementById('submissionModal').classList.add('show');
+
+            // Update current settings preview
+            updateCurrentSettingsPreview();
+
+            // Check if Google Form is configured
+            if (GOOGLE_FORM_CONFIG.baseUrl && GOOGLE_FORM_CONFIG.fields.jsonData) {
+                showGoogleForm();
+            } else {
+                showSetupInstructions();
+            }
+        }
+
+        function closeSubmissionModal() {
+            document.getElementById('submissionModal').classList.remove('show');
+        }
+
+        function updateCurrentSettingsPreview() {
+            const settings = getCurrentSettings();
+            const preview = `Noise: ${settings.noiseType} | EQ: ${settings.eq.subbass >= 0 ? '+' : ''}${settings.eq.subbass}, ${settings.eq.bass >= 0 ? '+' : ''}${settings.eq.bass}, ${settings.eq.mid >= 0 ? '+' : ''}${settings.eq.mid}, ${settings.eq.treble >= 0 ? '+' : ''}${settings.eq.treble}dB | Effects: R${settings.effects.reverb}% S${settings.effects.spatial}% W${settings.effects.warmth}% D${settings.effects.dynamics}%`;
+            document.getElementById('currentSettingsPreview').textContent = preview;
+        }
+
+        function getCurrentSettings() {
+            const eq = {
+                subbass: parseFloat(document.getElementById('eq-subbass')?.value || 0),
+                bass: parseFloat(document.getElementById('eq-bass')?.value || 0),
+                mid: parseFloat(document.getElementById('eq-mid')?.value || 0),
+                treble: parseFloat(document.getElementById('eq-treble')?.value || 0)
+            };
+
+            const effects = {
+                reverb: parseFloat(document.getElementById('reverb')?.value || 40),
+                spatial: parseFloat(document.getElementById('spatial')?.value || 50),
+                warmth: parseFloat(document.getElementById('warmth')?.value || 30),
+                dynamics: parseFloat(document.getElementById('dynamics')?.value || 60)
+            };
+
+            const activeNoiseType = document.querySelector('.noise-type.active')?.dataset.type || 'white';
+
+            return {
+                noiseType: activeNoiseType,
+                eq: eq,
+                effects: effects,
+                presetData: {
+                    eq: eq,
+                    effects: effects,
+                    volume: 75
+                }
+            };
+        }
+
+        function showGoogleForm() {
+            const settings = getCurrentSettings();
+
+            // Create pre-filled form URL
+            const formUrl = buildPrefilledFormUrl(settings);
+
+            // Show the form
+            document.getElementById('setupInstructions').style.display = 'none';
+            document.getElementById('googleFormContainer').style.display = 'block';
+            document.getElementById('googleFormFrame').src = formUrl;
+        }
+
+        function buildPrefilledFormUrl(settings) {
+            const baseUrl = GOOGLE_FORM_CONFIG.baseUrl;
+            const fields = GOOGLE_FORM_CONFIG.fields;
+
+            const params = new URLSearchParams();
+
+            // Pre-fill JSON data field
+            if (fields.jsonData) {
+                params.append(fields.jsonData, JSON.stringify(settings.presetData, null, 2));
+            }
+
+            // Pre-fill noise type if field exists
+            if (fields.noiseType) {
+                params.append(fields.noiseType, settings.noiseType);
+            }
+
+            // Add some suggested preset info as URL parameters for easier copying
+            params.append('usp', 'pp_url');
+            params.append('entry.992472029', `[Your Preset Name] - ${settings.noiseType} Noise`);
+            params.append('entry.1289108992', `[Describe your preset] - This preset uses ${settings.noiseType} noise with custom EQ and effects.`);
+
+            return `${baseUrl}?${params.toString()}`;
+        }
+
+        function showSetupInstructions() {
+            document.getElementById('googleFormContainer').style.display = 'none';
+            document.getElementById('setupInstructions').style.display = 'block';
+
+            console.log('🔧 Google Forms Setup Instructions:');
+            console.log('1. Create a Google Form with these exact field names:');
+            console.log('   - Preset Name (short answer, required)');
+            console.log('   - Description (paragraph, required)');
+            console.log('   - Creator Name (short answer, optional)');
+            console.log('   - Recommended Noise Type (multiple choice, required)');
+            console.log('   - Preset JSON Data (paragraph, required)');
+            console.log('2. Get the form URL and field entry IDs');
+            console.log('3. Update GOOGLE_FORM_CONFIG in this file');
+            console.log('Current settings:', getCurrentSettings());
+        }
+
+
+        function showEmailFallback() {
+            const settings = getCurrentSettings();
+            const emailBody = `Hi there!
+
+I'd like to submit a custom preset for ColorNoise:
+
+Preset Name: [Enter your preset name here]
+Description: [Describe your preset - what makes it special?]
+Creator: [Your name for credit, or leave blank for Anonymous]
+Recommended Noise Type: ${settings.noiseType}
+
+Preset JSON Data:
+${JSON.stringify(settings.presetData, null, 2)}
+
+Thanks for considering my submission!
+
+---
+Submitted via ColorNoise
+${window.location.href}`;
+
+            const mailtoLink = `mailto:ColorNoise@proton.me?subject=ColorNoise Preset Submission&body=${encodeURIComponent(emailBody)}`;
+            window.location.href = mailtoLink;
+        }
+
+        function copyCurrentSettings() {
+            const settings = getCurrentSettings();
+            const text = JSON.stringify(settings.presetData, null, 2);
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.background = 'rgba(74, 222, 128, 0.2)';
+                btn.style.borderColor = 'rgba(74, 222, 128, 0.4)';
+                btn.style.color = '#4ade80';
+
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = 'rgba(255, 107, 157, 0.2)';
+                    btn.style.borderColor = 'rgba(255, 107, 157, 0.4)';
+                    btn.style.color = '#ff6b9d';
+                }, 2000);
+            }).catch(() => {
+                alert('Copy failed. Please select all text and copy manually.');
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('submissionModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSubmissionModal();
+            }
+        });
     </script>
     <script src="js/sound_designer_engine.js"></script>
+    <script src="js/preset-loader.js"></script>
 </body>
 </html>

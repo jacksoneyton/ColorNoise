@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin/
+Disallow: /*.admin.*
+Disallow: /sys-config.html
+Disallow: /config/
+Disallow: /*config*
+
+# ColorNoise - Professional Sound Design
+# Main site: https://colornoise.pages.dev
+Sitemap: https://colornoise.pages.dev/sitemap.xml

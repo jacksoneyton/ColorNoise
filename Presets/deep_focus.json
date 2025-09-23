@@ -1,0 +1,17 @@
+{
+  "name": "Deep Focus",
+  "description": "Warm brown noise optimized for concentration and productivity",
+  "eq": {
+    "subbass": 8,
+    "bass": 10,
+    "mid": 5,
+    "treble": -12
+  },
+  "effects": {
+    "reverb": 35,
+    "spatial": 25,
+    "warmth": 60,
+    "dynamics": 70
+  },
+  "volume": 65
+}

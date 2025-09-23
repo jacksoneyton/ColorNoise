@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Configuration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-accent: #ff6b9d;
+            --accent-light: #ff85b3;
+            --bg-primary: #1a0d2e;
+            --bg-secondary: #2d1b3d;
+            --bg-tertiary: #4a2c5a;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-hover: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(ellipse at 25% 25%, rgba(255, 107, 157, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 75% 75%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 24px;
+            left: 24px;
+            padding: 12px 20px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: var(--glass-hover);
+            transform: translateY(-1px);
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        .admin-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .admin-panel:hover {
+            background: var(--glass-hover);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: monospace;
+        }
+
+        .color-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .color-option {
+            padding: 12px;
+            background: var(--glass);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .color-option:hover {
+            background: var(--glass-hover);
+            border-color: var(--primary-accent);
+        }
+
+        .color-option.selected {
+            border-color: var(--primary-accent);
+            background: rgba(255, 107, 157, 0.1);
+            color: var(--primary-accent);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-hover);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--bg-primary);
+        }
+
+        .btn-error {
+            background: var(--error);
+            color: white;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-drop-zone:hover, .file-drop-zone.dragover {
+            border-color: var(--primary-accent);
+            background: rgba(255, 107, 157, 0.05);
+        }
+
+        .presets-list {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            margin-top: 32px;
+        }
+
+        .preset-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .preset-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .preset-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .preset-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preset-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .preset-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+        }
+
+        .status-warning {
+            background: rgba(251, 191, 36, 0.1);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            color: var(--warning);
+        }
+
+        /* Authentication Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 13, 46, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .auth-container {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .auth-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 0.9rem;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .auth-input:focus {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary-accent), var(--accent-light));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.3);
+        }
+
+        .auth-error {
+            color: var(--error);
+            font-size: 0.85rem;
+            margin-top: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .auth-error.show {
+            opacity: 1;
+        }
+
+        .main-content {
+            display: none;
+        }
+
+        .main-content.authenticated {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-container">
+            <h1 class="auth-title">🔐 Access Required</h1>
+            <p class="auth-subtitle">Enter the access code to continue</p>
+            <input type="password" id="authPassword" class="auth-input" placeholder="Access Code" maxlength="20">
+            <button onclick="authenticate()" class="auth-btn">Enter</button>
+            <div class="auth-error" id="authError">Invalid access code. Please try again.</div>
+        </div>
+    </div>
+
+    <!-- Main Content (Hidden until authenticated) -->
+    <div class="main-content" id="mainContent">
+        <a href="index.html" class="back-link">← Back to ColorNoise</a>
+
+        <div class="admin-container">
+        <div class="header">
+            <h1>ColorNoise Admin</h1>
+            <p>Preset Management System</p>
+        </div>
+
+        <div class="admin-grid">
+            <!-- Community Workflow Panel -->
+            <div class="admin-panel" style="grid-column: 1 / -1;">
+                <h2 class="panel-title">🌟 Community Preset Workflow</h2>
+                <div style="padding: 20px; background: rgba(255, 107, 157, 0.05); border-radius: 12px; border: 1px solid rgba(255, 107, 157, 0.1);">
+                    <h3 style="color: var(--primary-accent); margin-bottom: 12px; font-size: 1.1rem;">How Community Submissions Work</h3>
+                    <ol style="color: var(--text-secondary); line-height: 1.6; padding-left: 20px;">
+                        <li><strong>Users submit presets</strong> via the "💝 Submit" button on the main site</li>
+                        <li><strong>Email submissions</strong> are received with preset data in standard JSON format</li>
+                        <li><strong>Review and test</strong> the preset using ColorNoise to ensure quality</li>
+                        <li><strong>Import approved presets</strong> using the "Upload Preset" panel below</li>
+                        <li><strong>Preset becomes available</strong> immediately to all users in the main UI</li>
+                    </ol>
+                    <div style="margin-top: 16px; padding: 12px; background: rgba(74, 222, 128, 0.1); border-radius: 8px; border: 1px solid rgba(74, 222, 128, 0.2);">
+                        <strong style="color: var(--success);">💡 Tip:</strong>
+                        <span style="color: var(--text-secondary);">Email submissions include creator name and description. Copy the JSON data and paste it into the "Create New Preset" panel for easy import.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Preset Panel -->
+            <div class="admin-panel">
+                <h2 class="panel-title">📥 Upload Preset</h2>
+
+                <div id="uploadStatus" class="status-message"></div>
+
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label class="form-label">Preset File (JSON)</label>
+                        <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('presetFile').click()">
+                            <p>📁 Click to select or drag & drop JSON file</p>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Supported: .json files only</p>
+                        </div>
+                        <input type="file" id="presetFile" accept=".json" style="display: none;">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="form-label">Preset Name</label>
+                        <input type="text" id="presetName" class="form-input" placeholder="e.g., Ocean Waves, Forest Ambience, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea id="presetDescription" class="form-textarea" placeholder="Brief description of this preset..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        💾 Save Preset
+                    </button>
+                </form>
+            </div>
+
+            <!-- Create Preset Panel -->
+            <div class="admin-panel">
+                <h2 class="panel-title">✨ Create New Preset</h2>
+
+                <div id="createStatus" class="status-message"></div>
+
+                <form id="createForm">
+                    <div class="form-group">
+                        <label class="form-label">Preset Configuration (JSON)</label>
+                        <textarea id="presetJSON" class="form-textarea" placeholder='{"eq": {"subbass": 0, "bass": 0, "mid": 0, "treble": 0}, "effects": {"reverb": 40, "spatial": 50, "warmth": 30, "dynamics": 60}}'></textarea>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="form-label">Preset Name</label>
+                        <input type="text" id="createPresetName" class="form-input" placeholder="e.g., Deep Focus, Relaxation, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea id="createPresetDescription" class="form-textarea" placeholder="Brief description of this preset..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" onclick="validateJSON()">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            ✨ Create Preset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing Presets List -->
+        <div class="presets-list">
+            <h2 class="panel-title">📋 Existing Presets</h2>
+            <div id="presetsList">
+                <p style="color: var(--text-muted); text-align: center; padding: 32px;">Loading presets...</p>
+            </div>
+            <div style="margin-top: 24px; text-align: center;">
+                <button class="btn btn-secondary" onclick="refreshPresets()">
+                    🔄 Refresh List
+                </button>
+                <button class="btn btn-warning" onclick="exportAllPresets()">
+                    📤 Export All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    </div> <!-- End main-content -->
+
+    <script>
+        // Authentication System - Password Hash (SHA-256)
+        const HASH_TARGET = '3e5c89902dfe5440a6b9e7c2f8d5951dd8ab310a2ad0778a6142065f65b1aa5c';
+
+        async function sha256(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text + 'CNoise_Salt_2024'); // Add salt
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function authenticate() {
+            const password = document.getElementById('authPassword').value;
+            const errorElement = document.getElementById('authError');
+
+            try {
+                const hashedInput = await sha256(password);
+
+                if (hashedInput === HASH_TARGET) {
+                    // Successful authentication
+                    document.getElementById('authOverlay').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('authenticated');
+
+                    // Store authentication token in session with timestamp
+                    const authToken = await sha256(hashedInput + Date.now().toString());
+                    sessionStorage.setItem('cnAuth', authToken);
+                    sessionStorage.setItem('cnTime', Date.now().toString());
+                } else {
+                    // Failed authentication
+                    errorElement.classList.add('show');
+                    document.getElementById('authPassword').value = '';
+
+                    // Hide error after 3 seconds
+                    setTimeout(() => {
+                        errorElement.classList.remove('show');
+                    }, 3000);
+
+                    // Add delay to prevent brute force
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            } catch (error) {
+                console.error('Authentication error');
+                errorElement.classList.add('show');
+                setTimeout(() => {
+                    errorElement.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Check if already authenticated in this session
+        async function checkExistingAuth() {
+            const authToken = sessionStorage.getItem('cnAuth');
+            const authTime = sessionStorage.getItem('cnTime');
+
+            if (authToken && authTime) {
+                // Check if session is still valid (4 hours max)
+                const fourHours = 4 * 60 * 60 * 1000;
+                if (Date.now() - parseInt(authTime) < fourHours) {
+                    document.getElementById('authOverlay').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('authenticated');
+                } else {
+                    // Session expired, clear storage
+                    sessionStorage.removeItem('cnAuth');
+                    sessionStorage.removeItem('cnTime');
+                }
+            }
+        }
+
+        checkExistingAuth();
+
+        // Allow Enter key to submit
+        document.getElementById('authPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+
+        // Focus on password field when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('authPassword').focus();
+        });
+
+        // Additional security measures
+        let failedAttempts = 0;
+        const maxAttempts = 5;
+
+        // Override console to prevent debugging
+        if (typeof console !== 'undefined') {
+            console.log = console.warn = console.error = function() {};
+        }
+
+        // Detect developer tools (basic)
+        setInterval(function() {
+            if (window.outerHeight - window.innerHeight > 200) {
+                // Possible dev tools open
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;color:#ff6b9d;">Access monitoring detected. Session terminated.</div>';
+            }
+        }, 1000);
+
+        // Rate limiting
+        const originalAuth = authenticate;
+        authenticate = async function() {
+            if (failedAttempts >= maxAttempts) {
+                document.getElementById('authError').textContent = 'Too many failed attempts. Please refresh and try again.';
+                document.getElementById('authError').classList.add('show');
+                return;
+            }
+
+            const result = await originalAuth();
+            if (!result) {
+                failedAttempts++;
+            }
+        };
+    </script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
