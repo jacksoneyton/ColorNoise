@@ -1,112 +1,138 @@
-# ColorNoise - Procedural Sound Designer
+# ColorNoise
 
-A professional-grade procedural sound design tool featuring scientifically-accurate colored noise generation with comprehensive audio processing capabilities. Built with vanilla JavaScript and the Web Audio API.
+Procedural sound design tool implementing scientifically-accurate colored noise generation with comprehensive audio processing capabilities. Built with vanilla JavaScript and the Web Audio API.
 
-## Features
+## Core Features
 
-### 🎨 Professional Sound Designer Interface
-- **Circular UI**: Intuitive wheel-based design inspired by professional audio equipment
-- **8 Noise Types**: White, Pink, Brown, Blue, Violet, Gray, Red, and Green noise
-- **Real-time Spectrum Analyzer**: Visual frequency analysis with colorful display
-- **Profile System**: Export/import custom sound profiles with user-defined names
+### Interface Architecture
+- Circular control interface designed for professional audio workflow
+- Eight noise type generators: White, Pink, Brown, Blue, Violet, Gray, Red, Green
+- Real-time frequency spectrum analysis with visual feedback
+- Profile management system with export/import functionality
+- Centralized preset database with community contribution pipeline
 
-### 🎛️ Precision Audio Controls
-- **10-Band Equalizer**: Professional frequency shaping from 40Hz to 16kHz
-- **Dual Input Methods**: Both sliders and numerical inputs for precise control
-- **6 Audio Effects**: Reverb, Spatial Width, Warmth Filter, Saturation, Dynamics, Modulation
-- **Bidirectional Sync**: Sliders and number inputs stay perfectly synchronized
+### Audio Control System
+- 10-band parametric equalizer spanning 40Hz to 16kHz
+- Dual control methodology: continuous sliders with discrete numerical input
+- Six-stage audio effects processing chain
+- Bidirectional control synchronization across interface elements
 
-### 🔊 Advanced Audio Processing
-- **Automatic Gain Compensation**: Prevents clipping during heavy EQ boosting
-- **Soft Limiting**: Professional-grade audio protection using hyperbolic tangent curves
-- **Real-time Generation**: Continuous procedural audio without loops or samples
-- **Professional Effects Chain**: Reverb → Warmth → Saturation → Spatial → Compression → Limiting
+### Signal Processing
+- Automatic gain compensation to prevent digital clipping
+- Soft limiting using hyperbolic tangent saturation curves
+- Continuous procedural generation eliminating buffer loops
+- Professional signal chain: Noise Generation → EQ → Reverb → Warmth → Saturation → Spatial → Compression → Limiting
 
-### 🎵 Scientifically Accurate Noise Types
-- **White**: Flat power distribution across all frequencies
-- **Pink**: 1/f distribution (-3dB/octave) - Natural, balanced sound
-- **Brown**: 1/f² distribution (-6dB/octave) - Deep, warm rumbling
-- **Blue**: High-frequency emphasis (+3dB/octave) - Crisp and energizing
-- **Violet**: Second-order high-pass characteristics - Sharp, bright
-- **Gray**: A-weighted frequency response - Perceptually flat
-- **Red**: Ultra-low frequencies - Deeper than brown noise
-- **Green**: Mid-frequency emphasis - Optimized for relaxation
+### Noise Generation Algorithms
+- **White**: Uniform power spectral density across frequency spectrum
+- **Pink**: 1/f power distribution with -3dB/octave rolloff
+- **Brown**: 1/f² power distribution with -6dB/octave rolloff
+- **Blue**: High-frequency emphasis with +3dB/octave slope
+- **Violet**: Second-order high-pass filtering characteristics
+- **Gray**: A-weighted frequency response curve implementation
+- **Red**: Extended low-frequency content below brown noise spectrum
+- **Green**: Mid-frequency emphasis optimized for perceptual balance
 
-## Technology Stack
+## Implementation Details
 
-- **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3
-- **Audio**: Web Audio API with advanced signal processing
-- **Design**: Modern CSS with flexbox/grid, responsive design principles
-- **Deployment**: Static hosting (Cloudflare Pages ready)
+### Technology Stack
+- **Runtime**: Vanilla JavaScript ES6+ modules
+- **Audio Processing**: Web Audio API with ScriptProcessorNode implementation
+- **Interface**: HTML5/CSS3 with flexbox layout system
+- **Deployment**: Static file hosting compatible (Cloudflare Pages)
 
-## Getting Started
+### Installation and Deployment
 
-### Quick Start
+```bash
+# Repository setup
+git clone https://github.com/jacksoneyton/ColorNoise.git
+cd ColorNoise
 
-1. **Clone and Run**:
-   ```bash
-   git clone https://github.com/jacksoneyton/ColorNoise.git
-   cd ColorNoise
-   python -m http.server 8000  # Or use any static server
-   ```
+# Local development server
+python -m http.server 8000
+# Access via http://localhost:8000
 
-2. **Open**: Navigate to `http://localhost:8000` (loads index.html automatically)
+# Production deployment
+# Push to main branch for automatic Cloudflare Pages deployment
+```
 
-3. **Use**: Click the center play button, select noise types around the wheel, adjust EQ and effects
+## System Architecture
 
-## Usage Guide
+### Interface Components
+- **Audio Control**: Central play/pause state management
+- **Noise Selection**: Circular layout providing access to eight noise generators
+- **Frequency Control**: 10-band parametric equalizer with logarithmic frequency spacing
+- **Effects Processing**: Six-parameter effects chain with percentage-based control
+- **Configuration Management**: Profile export/import with JSON serialization
+- **Preset System**: Database-driven preset selection with automatic loading
+- **Spectrum Analysis**: Real-time FFT visualization with frequency binning
 
-### Interface Overview
-- **Center Play Button**: Start/stop audio generation
-- **Noise Type Ring**: 8 noise types positioned around the central wheel
-- **Left Panel**: 10-band equalizer with frequency-specific controls
-- **Right Panel**: 6 audio effects with intensity controls
-- **Top Right**: Profile export/import buttons
-- **Bottom**: Real-time spectrum analyzer
-
-### Professional Controls
-- **Dual Input**: Use sliders for sweeping changes or number inputs for precise values
-- **EQ Range**: ±30dB adjustment across 10 frequency bands
-- **Effects Range**: 0-100% intensity for all audio effects
-- **Profile System**: Save/load complete configurations with custom names
+### Control Parameters
+- **Equalizer**: ±30dB gain adjustment across 10 frequency bands (40Hz-16kHz)
+- **Effects**: Normalized 0-100% intensity scaling for six processing stages
+- **Audio Pipeline**: Configurable routing with bypass capability per effect
+- **State Management**: Complete system state serialization for profile storage
+- **Preset Database**: JSON-structured preset collection with metadata
+- **Community Integration**: Form-based submission system for preset sharing
 
 ### Audio Processing Chain
 ```
 Noise Generator → 10-Band EQ → Reverb → Warmth → Saturation → Spatial → Compression → Soft Limiter → Output
 ```
 
-## Technical Architecture
+## Code Architecture
 
-### Core Files
-- **`sound_designer.html`**: Complete UI with circular controls and precision inputs
-- **`sound_designer_engine.js`**: Comprehensive audio engine with Web Audio API
-- **Legacy files**: Original ambient sound generator (`app.js`, `NoiseGenerator.js`, `AudioEffects.js`)
+### Module Structure
+- **`index.html`**: Primary interface with integrated preset system
+- **`sound_designer.html`**: Advanced interface with circular control layout
+- **`sound_designer_engine.js`**: Core audio processing engine
+- **`js/preset-loader.js`**: Preset management and database interface
+- **`Presets/presets.json`**: Centralized preset database
+- **Database utilities**: Node.js scripts for preset lifecycle management
 
-### Audio Engine Features
-- **Real-time Processing**: 4096-sample buffers for low-latency audio generation
-- **Professional EQ**: 10 biquad filters with shelving and peaking responses
-- **Effect Processing**: Convolution reverb, waveshaping saturation, dynamics compression
-- **Safety Systems**: Automatic gain compensation and soft limiting prevent audio damage
+### Audio Engine Implementation
+- **Buffer Management**: 4096-sample processing blocks for optimized latency
+- **Filter Implementation**: Biquad filter cascade with shelving and peaking topologies
+- **Effects Processing**: Convolution reverb, nonlinear saturation, dynamic range compression
+- **Protection Systems**: Automatic gain compensation and soft limiting algorithms
+- **Database Integration**: JSON-based preset storage with automatic synchronization
+- **Management Interface**: Command-line tools for database operations
 
-## Browser Support
+## Platform Compatibility
 
-- **Chrome/Edge/Firefox**: Full support with all features
-- **Safari**: Full support (requires user interaction to start audio)
-- **Mobile**: Responsive design with touch-optimized controls
+### Browser Support Matrix
+- **Chromium-based**: Complete Web Audio API support with all features
+- **Firefox**: Full compatibility across all audio processing features
+- **Safari**: Complete support with user gesture requirement for AudioContext
+- **Mobile Browsers**: Responsive interface with touch-optimized controls
 
-## Performance
+### Performance Characteristics
+- **Audio Generation**: Continuous procedural synthesis without sample buffers
+- **Processing Latency**: <50ms response time for real-time parameter changes
+- **CPU Utilization**: Optimized algorithms for minimal processing overhead
+- **Memory Footprint**: ~10-15MB including spectrum analysis buffers
 
-- **Real-time Generation**: No pre-recorded samples, infinite duration
-- **Low Latency**: <50ms audio response for immediate control feedback  
-- **Efficient Processing**: Optimized algorithms minimize CPU usage
-- **Memory Usage**: ~10-15MB typical usage including spectrum analyzer
+## Development Guidelines
 
-## Contributing
+### Code Contribution Process
+1. Fork repository and create feature branch from main
+2. Implement changes with cross-browser compatibility testing
+3. Maintain existing code patterns and architectural consistency
+4. Submit pull request with comprehensive change documentation
 
-1. Fork the repository and create a feature branch
-2. Make changes with comprehensive testing across browsers
-3. Follow existing code patterns and add clear documentation
-4. Submit a pull request with detailed description
+### Preset Contribution Workflow
+1. Configure audio parameters through interface controls
+2. Submit configuration via integrated Google Forms interface
+3. Maintainer review and approval process for database inclusion
+4. Attribution provided in preset metadata upon acceptance
+
+### Database Management Operations
+```bash
+# Preset lifecycle management
+node add-preset.js <preset_id> "<display_name>"    # Create new preset
+node sync-presets.js                               # Synchronize database
+node remove-preset.js <preset_id>                  # Remove existing preset
+```
 
 ## License
 
@@ -114,5 +140,6 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 ---
 
-**Repository**: [GitHub - ColorNoise](https://github.com/jacksoneyton/ColorNoise)  
-**Live Tool**: Opens directly at index.html with full professional interface
+**Repository**: https://github.com/jacksoneyton/ColorNoise
+**Production**: https://colornoise.pages.dev
+**Documentation**: Complete technical reference available in CLAUDE.md
